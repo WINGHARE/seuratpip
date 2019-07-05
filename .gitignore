@@ -4,3 +4,4 @@ figs/
 output/
 logs/
 *.Rproj
+.Rproj.user
