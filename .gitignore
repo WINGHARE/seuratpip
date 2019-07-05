@@ -6,3 +6,4 @@ logs/
 *.Rproj
 .Rproj.user
 .Rhistory
+*.con
