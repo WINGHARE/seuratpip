@@ -27,7 +27,7 @@ library(dplyr)
 
 if(length(grep(".h5",filename)>0)){
     my.raw.data<-Read10X_h5(filename) # check `?Read10X_h5` for help
-}else if(length(grep(".csv",filename)>0)){
+}else if(length(grep("[.csv][.txt]",filename)>0)){
     my.raw.data<- read.csv(filename,sep="\t",header=TRUE, row.names = 1)
 
     if(sfname == "GSE69405"){
@@ -35,7 +35,6 @@ if(length(grep(".h5",filename)>0)){
 	    my.raw.data <- my.raw.data[,54:143]# ncol(my.raw.data)]
 	    #rownames(my.raw.data) <- gname.69405
     }
-
 }
 #my.raw.data<-Read10X_h5(filename) # check `?Read10X_h5` for help
 my.object<-CreateSeuratObject(my.raw.data) 
@@ -50,10 +49,10 @@ VlnPlot(my.object, features = c("nFeature_RNA", "nCount_RNA"#,"percent.mt"
                                 ), ncol = 2)
 dev.off()
 
-if(sfname!="GSE69405"){
-my.object <- subset(my.object, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 #& percent.mt < 5
-)
-}
+# if(sfname!="GSE69405"){
+# my.object <- subset(my.object, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 #& percent.mt < 5
+# )
+# }
 #################
 my.object<-NormalizeData(my.object,normalization.method = "LogNormalize",scale.factor = 10000)
 ##########################
@@ -115,13 +114,27 @@ for(c in unique(my.object$seurat_clusters))
 }
 #my.object.markers.group.top2<-my.object.markers.all %>% group_by(cluster) %>% top_n(n = 2, wt = avg_logFC)
 
+#my.object.markers.group.top2<-my.object.markers.all %>% group_by(cluster) %>% top_n(n = 2, wt = avg_logFC)
+
 # Find top markers in a list
 find_topk_marker<-function(marker,k=1){
   results<-rownames(head(marker,n=k)[1])
+  return(results)
+}
+find_topk_marker_each<-function(markers.each,k=1){
+  
+  results <- c()
+  for(i in 1:length(markers.each)){
+    results <- c(results,(find_topk_marker(markers.each[[i]],k)))
+  }
   return(results)
 }
 
 
 pdf(file=paste("figs/",sfname,"_markers_vlnplot.pdf",sep = ""))
 VlnPlot(my.object, features = find_topk_marker(my.object.markers.all,k=9), slot = "counts", log = TRUE,pt.size=0)
+dev.off()
+
+pdf(file=paste("figs/",sfname,"_markers_vlnplotvs.pdf",sep = ""))
+VlnPlot(my.object, features = find_topk_marker_each(my.object.markers.each,1), slot = "counts", log = TRUE,pt.size=0)
 dev.off()
