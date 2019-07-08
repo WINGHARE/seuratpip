@@ -35,6 +35,9 @@ if(length(grep(".h5",filename)>0)){
 	    my.raw.data <- my.raw.data[,54:143]# ncol(my.raw.data)]
 	    #rownames(my.raw.data) <- gname.69405
     }
+}else{
+  my.raw.data <- Read10X(data.dir = filename)
+  
 }
 #my.raw.data<-Read10X_h5(filename) # check `?Read10X_h5` for help
 my.object<-CreateSeuratObject(my.raw.data) 
