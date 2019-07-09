@@ -10,9 +10,10 @@ if (length(args)==0) {
 }else {
     print(args)
     filename = args[1]
-    sfname = gsub(".h5","",filename)
-    sfname = gsub(".csv","",sfname)
-    sfname = gsub("data/","",sfname)
+    #sfname = gsub(".h5","",filename)
+    #sfname = gsub(".csv","",sfname)
+    #sfname = gsub("data/","",sfname)
+    sfname = gsub("[.h5]|[.csv]|[data/]|[.txt]","",filename)
 }
 
 if(!require(Seurat)) {
@@ -56,6 +57,13 @@ dev.off()
 # my.object <- subset(my.object, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 #& percent.mt < 5
 # )
 # }
+
+switch(fname, 
+       GSE108394={
+         my.object <- subset(my.object, subset = nFeature_RNA > 2000 & nFeature_RNA < 8000)
+       } 
+       )
+
 #################
 my.object<-NormalizeData(my.object,normalization.method = "LogNormalize",scale.factor = 10000)
 ##########################
