@@ -58,7 +58,7 @@ dev.off()
 # )
 # }
 
-switch(fname, 
+switch(sfname, 
        GSE108394={
          my.object <- subset(my.object, subset = nFeature_RNA > 2000 & nFeature_RNA < 8000)
        } 
