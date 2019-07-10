@@ -52,7 +52,10 @@ my.object <- list()
 for(i in 1:num.files){
   my.object[[i]]<- CreateSeuratObject(my.raw.data[[i]])
   my.object[[i]] <- RenameCells(my.object[[i]], add.cell.id = i)
-  my.object[[i]]<- NormalizeData(my.object[[i]],verbose = FALSE)
+  my.object[[i]] <- NormalizeData(my.object[[i]],verbose = FALSE)
+  my.object[[i]]<-NormalizeData(my.object[[i]],normalization.method = "LogNormalize",
+                                scale.factor = 10000)
+  
   my.object[[i]] <- subset(my.object[[i]], subset = nFeature_RNA > 200 & nFeature_RNA < 4000)
   my.object[[i]] <- FindVariableFeatures(my.object[[i]],selection.method = "vst"
                                          ,nfeatures = 500, verbose =  FALSE)
@@ -68,7 +71,7 @@ DefaultAssay(data.all.integrated) <- "integrated"
 data.all.integrated <- ScaleData(data.all.integrated, verbose = FALSE)
 saveRDS(data.all.integrated, file = paste("output/",sfname,".rds",sep = ""))
 data.all.integrated <- RunPCA(data.all.integrated, npcs = 15, verbose = FALSE)
-data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:30)
+#data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:30)
 saveRDS(data.all.integrated, file = paste("output/",sfname,"reduced.rds",sep = ""))
 
 }# End else
