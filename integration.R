@@ -1,28 +1,38 @@
 # set working directory, you may change the directory first.
 #setwd("")
 # loading required packege
+
+
+
 args <- commandArgs(trailingOnly = TRUE)
 
 # test if there is at least one argument: if not, load file 1 as imput
 if (length(args)==0) {
     print("No input file name input, use ko1 filename")
-    filename <- "data/WT1_raw_feature_bc_matrix.h5"
-}else {
-    print(args)
-    filename = args[1]
+  
+    args <-
+      c(
+    "data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5"
+    )
+    #filename <- "data/WT1_raw_feature_bc_matrix.h5"
+}
+    
+print(args)
+filename = args[1]
     #sfname = gsub(".h5","",filename)
     #sfname = gsub(".csv","",sfname)
     #sfname = gsub("data/","",sfname)
     
     
-    if(length(unlist(strsplit(filename, ",")))>1){
-      filenames <- unlist(strsplit(filename, ","))
-      num.files <- length(filenames)
-    }else{
-      print("Not enough files to intergate")
-    }
-    sfname <- paste(gsub("[.h5]|[.csv]|[data/]|[.txt]","",filenames[[1]]),"integrated",sep="_")
+if(length(unlist(strsplit(filename, ",")))>1){
+  filenames <- unlist(strsplit(filename, ","))s
+  num.files <- length(filenames)
+  sfnames <- unlist(strsplit(gsub("[data/]|[.h5]","",filename),","))
+}else{
+  print("Not enough files to intergate")
 }
+sfname <- paste(gsub("[.h5]|[.csv]|[data/]|[.txt]","",filenames[[1]]),"integrated",sep="_")
+
 
 if(!require(Seurat)) {
   install.packages("Seurat")
@@ -50,9 +60,15 @@ if(length(grep(".h5",filename)>0)){
 
 my.object <- list()
 
-for(i in 1:num){
-  my.object[[i]]<-CreateSeuratObject(my.raw.data[[i]])
+for(i in 1:num.files){
+  my.object[[i]]<- CreateSeuratObject(my.raw.data[[i]])
+  my.object[[i]]<- NormalizeData(my.object[[i]],verbose = FALSE)
+  my.object[[i]] <- FindVariableFeatures(my.object[[i]],selection.method = "vst"
+                                         ,nfeatures = 500, verbose =  FALSE)
+  
 }
+names(my.object) <- sfnames
+data.all.anchors <- FindIntegrationAnchors(my.object,dims=1:30)
 #################
 #preprocessing###
 #################
