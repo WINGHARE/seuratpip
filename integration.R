@@ -15,7 +15,6 @@ if (length(args)==0) {
     "data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5"
     )
     #filename <- "data/WT1_raw_feature_bc_matrix.h5"
-    sfnames <- unlist(strsplit(gsub("[data/]|[.h5]","",filename),","))
     
 }
     
@@ -24,13 +23,12 @@ filename = args[1]
     #sfname = gsub(".h5","",filename)
     #sfname = gsub(".csv","",sfname)
     #sfname = gsub("data/","",sfname)
+filenames <- unlist(strsplit(filename, ","))
+num.files <- length(filenames)
+sfnames <- unlist(strsplit(gsub("[data/]|[.h5]","",filename),","))
+
     
-    
-if(length(unlist(strsplit(filename, ",")))>1){
-  filenames <- unlist(strsplit(filename, ","))s
-  num.files <- length(filenames)
-  sfnames <- unlist(strsplit(gsub("[data/]|[.h5]","",filename),","))
-}else{
+if(num.files<=1){
   print("Not enough files to intergate")
 }
 sfname <- paste(gsub("[.h5]|[.csv]|[data/]|[.txt]","",filenames[[1]]),"integrated",sep="_")
