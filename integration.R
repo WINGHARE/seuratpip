@@ -63,7 +63,7 @@ my.object <- list()
 for(i in 1:num.files){
   my.object[[i]]<- CreateSeuratObject(my.raw.data[[i]])
   my.object[[i]]<- NormalizeData(my.object[[i]],verbose = FALSE)
-  my.object[[i]] <- subset(my.object, subset = nFeature_RNA > 200 & nFeature_RNA < 3500)
+  my.object[[i]] <- subset(my.object[[i]], subset = nFeature_RNA > 200 & nFeature_RNA < 3500)
   my.object[[i]] <- FindVariableFeatures(my.object[[i]],selection.method = "vst"
                                          ,nfeatures = 500, verbose =  FALSE)
   
