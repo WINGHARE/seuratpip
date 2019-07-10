@@ -1,28 +1,23 @@
 # set working directory, you may change the directory first.
 #setwd("")
 # loading required packege
-
+library(Seurat)
+library(dplyr)
 
 
 args <- commandArgs(trailingOnly = TRUE)
 
-# test if there is at least one argument: if not, load file 1 as imput
+##################  
+# Argument tests #
+##################
+
+# Test if there is at least one argument: if not, use the default arguments 
 if (length(args)==0) {
-    print("No input file name input, use ko1 filename")
-  
-    args <-
-      c(
-    "data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5"
-    )
-    #filename <- "data/WT1_raw_feature_bc_matrix.h5"
-    
+    print("No input file name input, use default filename")
+    args <-c("data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
 }
-    
 print(args)
 filename = args[1]
-    #sfname = gsub(".h5","",filename)
-    #sfname = gsub(".csv","",sfname)
-    #sfname = gsub("data/","",sfname)
 filenames <- unlist(strsplit(filename, ","))
 num.files <- length(filenames)
 sfnames <- unlist(strsplit(gsub("[data/]|[.h5]","",filename),","))
@@ -34,16 +29,12 @@ if(num.files<=1){
 sfname <- paste(gsub("[.h5]|[.csv]|[data/]|[.txt]","",filenames[[1]]),"integrated",sep="_")
 
 
-if(!require(Seurat)) {
-  install.packages("Seurat")
-} else{
-  library(Seurat)
-}
-library(dplyr)
+
 ################
 # input hdf5 ###
 ################
 
+# Load data files base on different type of files
 if(length(grep(".h5",filename)>0)){
     
     my.raw.data <- list()
@@ -56,21 +47,34 @@ if(length(grep(".h5",filename)>0)){
   my.raw.data <- Read10X(data.dir = filename)
   
 }
-#my.raw.data<-Read10X_h5(filename) # check `?Read10X_h5` for help
 
 my.object <- list()
 
+# Preprocess the raw files
 for(i in 1:num.files){
   my.object[[i]]<- CreateSeuratObject(my.raw.data[[i]])
   my.object[[i]]<- NormalizeData(my.object[[i]],verbose = FALSE)
-  my.object[[i]] <- subset(my.object[[i]], subset = nFeature_RNA > 200 & nFeature_RNA < 3500)
+  my.object[[i]] <- subset(my.object[[i]], subset = nFeature_RNA > 200 & nFeature_RNA < 4000)
   my.object[[i]] <- FindVariableFeatures(my.object[[i]],selection.method = "vst"
                                          ,nfeatures = 500, verbose =  FALSE)
   
-  
 }
 names(my.object) <- sfnames
+
+
+# Find anchors using of different files
 data.all.anchors <- FindIntegrationAnchors(my.object,dims=1:30)
+data.all.integrated <- IntegrateData(anchorset = data.all.anchors, dims = 1:30)
+DefaultAssay(data.all.integrated) <- "integrated"
+
+
+# Custering analysis for the integrated data
+
+data.all.integrated <- ScaleData(data.all.integrated, verbose = FALSE)
+data.all.integrated <- RunPCA(data.all.integrated, npcs = 15, verbose = FALSE)
+data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:30)
+saveRDS(data.all.integrated, file = paste("output/",sfname,".rds",sep = ""))
+
 #################
 #preprocessing###
 #################
