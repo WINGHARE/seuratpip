@@ -77,7 +77,7 @@ data.all.integrated@meta.data<-cbind(data.all.integrated@meta.data,labels.files.
 
 saveRDS(data.all.integrated, file = paste("output/",sfname,".rds",sep = ""))
 data.all.integrated <- RunPCA(data.all.integrated, npcs = 15, verbose = FALSE)
-#data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:30)
+#data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:15)
 saveRDS(data.all.integrated, file = paste("output/",sfname,"reduced.rds",sep = ""))
 
 }# End else
