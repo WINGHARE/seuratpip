@@ -13,7 +13,15 @@ if (length(args)==0) {
     #sfname = gsub(".h5","",filename)
     #sfname = gsub(".csv","",sfname)
     #sfname = gsub("data/","",sfname)
-    sfname = gsub("[.h5]|[.csv]|[data/]|[.txt]","",filename)
+    
+    
+    if(length(unlist(strsplit(filename, ",")))>1){
+      filenames <- unlist(strsplit(filename, ","))
+      num.files <- length(filenames)
+    }else{
+      print("Not enough files to intergate")
+    }
+    sfname <- paste(gsub("[.h5]|[.csv]|[data/]|[.txt]","",filenames[[1]]),"integrated",sep="_")
 }
 
 if(!require(Seurat)) {
@@ -27,21 +35,24 @@ library(dplyr)
 ################
 
 if(length(grep(".h5",filename)>0)){
-    my.raw.data<-Read10X_h5(filename) # check `?Read10X_h5` for help
+    
+    my.raw.data <- list()
+    for(i in 1:num.files){
+      my.raw.data[[i]]<-Read10X_h5(filenames[[i]])
+    }
 }else if(length(grep("[.csv][.txt]",filename)>0)){
     my.raw.data<- read.csv(filename,sep="\t",header=TRUE, row.names = 1)
-
-    if(sfname == "GSE69405"){
-	    gname.69405<-my.raw.data$gene_name
-	    my.raw.data <- my.raw.data[,54:143]# ncol(my.raw.data)]
-	    #rownames(my.raw.data) <- gname.69405
-    }
 }else{
   my.raw.data <- Read10X(data.dir = filename)
   
 }
 #my.raw.data<-Read10X_h5(filename) # check `?Read10X_h5` for help
-my.object<-CreateSeuratObject(my.raw.data) 
+
+my.object <- list()
+
+for(i in 1:num){
+  my.object[[i]]<-CreateSeuratObject(my.raw.data[[i]])
+}
 #################
 #preprocessing###
 #################
