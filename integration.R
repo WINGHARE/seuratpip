@@ -76,9 +76,17 @@ labels.files.num <- unlist(lapply(rownames(data.all.integrated@meta.data),
 data.all.integrated@meta.data<-cbind(data.all.integrated@meta.data,labels.files.num)
 
 saveRDS(data.all.integrated, file = paste("output/",sfname,".rds",sep = ""))
-data.all.integrated <- RunPCA(data.all.integrated, npcs = 15, verbose = FALSE)
-data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:15)
+data.all.integrated <- RunPCA(data.all.integrated, npcs = 30, verbose = FALSE)
+data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:30)
+data.all.integrated <- RunTSNE(data.all.integrated, dims = 1:30, perplexity=10,dim.embed = 2)
 saveRDS(data.all.integrated, file = paste("output/",sfname,"reduced.rds",sep = ""))
+
+pdf(file=paste("figs/",sfname,"_dimplots.pdf",sep = ""))
+p1 <- DimPlot(data.all.integrated, reduction = "pca", group.by = "labels.files.num")
+p2 <- DimPlot(data.all.integrated, reduction = "umap", group.by = "labels.files.num")
+p3 <- DimPlot(data.all.integrated, reduction = "tsne", group.by = "labels.files.num")
+plot_grid(p1, p2,p3)
+dev.off()
 
 }# End else
 

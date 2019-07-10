@@ -95,7 +95,7 @@ dev.off()
 if (file.exists(paste("output/",sfname,".rds", sep = ""))){
   my.object<-readRDS(file = paste("output/",sfname,".rds", sep = ""))
 }else{
-  my.object<-RunTSNE(my.object,dims = 1:30,perplexity=10,dim.embed = 3)
+  my.object<-RunTSNE(my.object,dims = 1:30,perplexity=10,dim.embed = 2)
   # run umap to get high dimension scatter plot at 2 dimensional coordinate system.
   my.object<-RunUMAP(object = my.object,dims = 1:30)
   
