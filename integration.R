@@ -69,6 +69,12 @@ DefaultAssay(data.all.integrated) <- "integrated"
 
 # Custering analysis for the integrated data
 data.all.integrated <- ScaleData(data.all.integrated, verbose = FALSE)
+
+labels.files.num <- unlist(lapply(rownames(data.all.integrated@meta.data),
+                              FUN=fun<-function(x){return(substr(x,1,1))}))
+
+data.all.integrated@meta.data<-cbind(data.all.integrated@meta.data,labels.files.num)
+
 saveRDS(data.all.integrated, file = paste("output/",sfname,".rds",sep = ""))
 data.all.integrated <- RunPCA(data.all.integrated, npcs = 15, verbose = FALSE)
 #data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:30)
