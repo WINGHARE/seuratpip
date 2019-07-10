@@ -51,6 +51,7 @@ my.object <- list()
 # Preprocess the raw files
 for(i in 1:num.files){
   my.object[[i]]<- CreateSeuratObject(my.raw.data[[i]])
+  my.object[[i]] <- RenameCells(my.object[[i]], add.cell.id = i)
   my.object[[i]]<- NormalizeData(my.object[[i]],verbose = FALSE)
   my.object[[i]] <- subset(my.object[[i]], subset = nFeature_RNA > 200 & nFeature_RNA < 4000)
   my.object[[i]] <- FindVariableFeatures(my.object[[i]],selection.method = "vst"
