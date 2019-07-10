@@ -59,10 +59,11 @@ dev.off()
 # }
 
 switch(sfname, 
+
        GSE108394={
          my.object <- subset(my.object, subset = nFeature_RNA > 2000 & nFeature_RNA < 8000)
        } 
-       )
+)
 
 #################
 my.object<-NormalizeData(my.object,normalization.method = "LogNormalize",scale.factor = 10000)
