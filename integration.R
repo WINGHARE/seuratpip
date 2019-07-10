@@ -66,9 +66,10 @@ DefaultAssay(data.all.integrated) <- "integrated"
 
 # Custering analysis for the integrated data
 data.all.integrated <- ScaleData(data.all.integrated, verbose = FALSE)
+saveRDS(data.all.integrated, file = paste("output/",sfname,".rds",sep = ""))
 data.all.integrated <- RunPCA(data.all.integrated, npcs = 15, verbose = FALSE)
 data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:30)
-saveRDS(data.all.integrated, file = paste("output/",sfname,".rds",sep = ""))
+saveRDS(data.all.integrated, file = paste("output/",sfname,"reduced.rds",sep = ""))
 
 }# End else
 
