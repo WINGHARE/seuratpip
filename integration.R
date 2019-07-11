@@ -3,7 +3,7 @@
 # loading required packege
 library(Seurat)
 library(dplyr)
-
+library(cowplot)
 
 args <- commandArgs(trailingOnly = TRUE)
 
