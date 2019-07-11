@@ -69,16 +69,21 @@ VlnPlot(my.object, features = c("nFeature_RNA", "nCount_RNA"#,"percent.mt"
                                 ), ncol = 2)
 dev.off()
 
-if(sfname!="GSE69405"){
-my.object <- subset(my.object, subset = nFeature_RNA > opt$filterl & nFeature_RNA < opt$filterr)
-}
 
+# Data specific procession
 switch(sfname, 
-
+       
        GSE108394={
-         my.object <- subset(my.object, subset = nFeature_RNA > 2000 & nFeature_RNA < 8000)
-       } 
+         #my.object <- subset(my.object, subset = nFeature_RNA > 2000 & nFeature_RNA < 8000)
+       },
+       GSE117872={
+         my.meta <- read.csv("data/GSE117872_cellinfo.txt",sep="\t",header=TRUE, row.names = 1)
+         my.object@meta.data <- cbind(my.object@meta.data,my.meta)
+       }
 )
+
+my.object <- subset(my.object, subset = nFeature_RNA > opt$filterl & nFeature_RNA < opt$filterr)
+
 
 #################
 my.object<-NormalizeData(my.object,normalization.method = "LogNormalize",scale.factor = 10000)
