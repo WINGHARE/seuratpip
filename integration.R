@@ -76,6 +76,9 @@ labels.files.num <- unlist(lapply(rownames(data.all.integrated@meta.data),
 data.all.integrated@meta.data<-cbind(data.all.integrated@meta.data,labels.files.num)
 
 saveRDS(data.all.integrated, file = paste("output/",sfname,".rds",sep = ""))
+
+data.all.integrated <- FindNeighbors(data.all.integrated, dims = 1:10)
+data.all.integrated <- FindClusters(data.all.integrated, resolution = 0.5)
 data.all.integrated <- RunPCA(data.all.integrated, npcs = 30, verbose = FALSE)
 data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:30)
 data.all.integrated <- RunTSNE(data.all.integrated, dims = 1:30, perplexity=10,dim.embed = 2)
