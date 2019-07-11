@@ -14,14 +14,14 @@ option_list = list(
               help="dataset file names, seperated by commas", metavar="character"),
   make_option(c("-o", "--out"), type="character", default="out.txt", 
               help="output file name [default= %default]", metavar="character"),
-  make_option(c("-lb", "--filterl"), type ="integer",default=500, action="store_true",
-              help="The lower bound of the filter nFerature RNA [default= %default]"),
-  make_option(c("-rb", "--filterr"), type ="integer", default=5000, action="store_true",
-              help="The upper bound of the filter nFerature RNA", metavar="integer")
+  make_option(c("-lb", "--filterl"), default=as.integer(500), 
+              help="The lower bound of the filter nFerature RNA [default= %default]", metavar="number"),
+  make_option(c("-rb", "--filterr"), type ="integer", default=as.integer(5000), 
+              help="The upper bound of the filter nFerature RNA", metavar="number")
 )
 
 opt_parser = OptionParser(option_list=option_list);
-opt = parse_args(opt_parser,args);
+opt = parse_args(opt_parser,args=args);
 
 #args <- commandArgs(trailingOnly = TRUE)
 
