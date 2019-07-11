@@ -4,20 +4,36 @@
 library(Seurat)
 library(dplyr)
 library(cowplot)
+library(optparse)
 
-args <- commandArgs(trailingOnly = TRUE)
+
+names.default <-c("data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
+
+option_list = list(
+  make_option(c("-f", "--file"), type="character", default=names.default, 
+              help="dataset file names, seperated by commas", metavar="character"),
+  make_option(c("-o", "--out"), type="character", default="out.txt", 
+              help="output file name [default= %default]", metavar="character")
+); 
+
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser);
+
+#args <- commandArgs(trailingOnly = TRUE)
 
 ##################  
 # Argument tests #
 ##################
 
 # Test if there is at least one argument: if not, use the default arguments 
-if (length(args)==0) {
-    print("No input file name input, use default filename")
-    args <-c("data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
-}
-print(args)
-filename = args[1]
+# if (length(args)==0) {
+#     print("No input file name input, use default filename")
+#     args <-c("data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
+# }
+# print(args)
+# filename = args[1]
+
+filename <- opt.file
 filenames <- unlist(strsplit(filename, ","))
 num.files <- length(filenames)
 sfnames <- unlist(strsplit(gsub("[data/]|[.h5]","",filename),","))
