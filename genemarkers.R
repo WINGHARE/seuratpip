@@ -10,7 +10,7 @@ if(!require(Seurat)) {
 library(dplyr)
 library(optparse)
 
-# args <- commandArgs(trailingOnly = TRUE)
+args <- commandArgs(trailingOnly = TRUE)
 
 option_list = list(
   make_option(c("-f", "--file"), type="character", default="data/WT1_raw_feature_bc_matrix.h5", 
@@ -24,7 +24,7 @@ option_list = list(
 )
 
 opt_parser = OptionParser(option_list=option_list);
-opt = parse_args(opt_parser);
+opt = parse_args(opt_parser,args);
 
 # test if there is at least one argument: if not, load file 1 as imput
 

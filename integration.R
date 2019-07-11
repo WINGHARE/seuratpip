@@ -5,7 +5,7 @@ library(Seurat)
 library(dplyr)
 library(cowplot)
 library(optparse)
-
+args <- commandArgs(trailingOnly = TRUE)
 
 names.default <-c("data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
 
@@ -21,7 +21,7 @@ option_list = list(
 )
 
 opt_parser = OptionParser(option_list=option_list);
-opt = parse_args(opt_parser);
+opt = parse_args(opt_parser,args);
 
 #args <- commandArgs(trailingOnly = TRUE)
 
