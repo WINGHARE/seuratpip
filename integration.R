@@ -33,7 +33,7 @@ opt = parse_args(opt_parser);
 # print(args)
 # filename = args[1]
 
-filename <- opt.file
+filename <- opt$file
 filenames <- unlist(strsplit(filename, ","))
 num.files <- length(filenames)
 sfnames <- unlist(strsplit(gsub("[data/]|[.h5]","",filename),","))
