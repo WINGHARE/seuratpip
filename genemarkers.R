@@ -17,9 +17,9 @@ option_list = list(
               help="dataset file names, seperated by commas", metavar="character"),
   make_option(c("-o", "--out"), type="character", default="out.txt", 
               help="output file name [default= %default]", metavar="character"),
-  make_option(c("-lb", "--filterl"), type ="integer",default=500, 
+  make_option(c("-fl", "--filterl"), type ="integer",default=500, 
               help="The lower bound of the filter nFerature RNA [default= %default]"),
-  make_option(c("-rb", "--filterr"), type ="integer", default=5000,
+  make_option(c("-fl", "--filterr"), type ="integer", default=5000,
               help="The upper bound of the filter nFerature RNA", metavar="integer")
 )
 
