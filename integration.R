@@ -13,8 +13,12 @@ option_list = list(
   make_option(c("-f", "--file"), type="character", default=names.default, 
               help="dataset file names, seperated by commas", metavar="character"),
   make_option(c("-o", "--out"), type="character", default="out.txt", 
-              help="output file name [default= %default]", metavar="character")
-); 
+              help="output file name [default= %default]", metavar="character"),
+  make_option(c("-lb", "--filterl"), type ="integer",default=500, action="store_true",
+              help="The lower bound of the filter nFerature RNA [default= %default]"),
+  make_option(c("-rb", "--filterr"), type ="integer", default=5000, action="store_true",
+              help="The upper bound of the filter nFerature RNA", metavar="integer")
+)
 
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
@@ -72,7 +76,7 @@ for(i in 1:num.files){
   my.object[[i]]<-NormalizeData(my.object[[i]],normalization.method = "LogNormalize",
                                 scale.factor = 10000)
   
-  my.object[[i]] <- subset(my.object[[i]], subset = nFeature_RNA > 200 & nFeature_RNA < 4000)
+  my.object[[i]] <- subset(my.object[[i]], subset = nFeature_RNA > opt$filterl & nFeature_RNA < opt$filterr)
   my.object[[i]] <- FindVariableFeatures(my.object[[i]],selection.method = "vst"
                                          ,nfeatures = 500, verbose =  FALSE)
   

@@ -1,20 +1,6 @@
 # set working directory, you may change the directory first.
 #setwd("")
 # loading required packege
-args <- commandArgs(trailingOnly = TRUE)
-
-# test if there is at least one argument: if not, load file 1 as imput
-if (length(args)==0) {
-    print("No input file name input, use ko1 filename")
-    filename <- "data/WT1_raw_feature_bc_matrix.h5"
-}else {
-    print(args)
-    filename = args[1]
-    #sfname = gsub(".h5","",filename)
-    #sfname = gsub(".csv","",sfname)
-    #sfname = gsub("data/","",sfname)
-    sfname = gsub("[.h5]|[.csv]|[data/]|[.txt]","",filename)
-}
 
 if(!require(Seurat)) {
   install.packages("Seurat")
@@ -22,6 +8,36 @@ if(!require(Seurat)) {
   library(Seurat)
 }
 library(dplyr)
+library(optparse)
+
+# args <- commandArgs(trailingOnly = TRUE)
+
+option_list = list(
+  make_option(c("-f", "--file"), type="character", default="data/WT1_raw_feature_bc_matrix.h5", 
+              help="dataset file names, seperated by commas", metavar="character"),
+  make_option(c("-o", "--out"), type="character", default="out.txt", 
+              help="output file name [default= %default]", metavar="character"),
+  make_option(c("-lb", "--filterl"), type ="integer",default=500, action="store_true",
+              help="The lower bound of the filter nFerature RNA [default= %default]"),
+  make_option(c("-rb", "--filterr"), type ="integer", default=5000, action="store_true",
+              help="The upper bound of the filter nFerature RNA", metavar="integer")
+)
+
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser);
+
+# test if there is at least one argument: if not, load file 1 as imput
+
+filename = opt$file
+    #sfname = gsub(".h5","",filename)
+    #sfname = gsub(".csv","",sfname)
+    #sfname = gsub("data/","",sfname)
+sfname = gsub("[.h5]|[.csv]|[data/]|[.txt]","",filename)
+
+
+
+
+
 ################
 # input hdf5 ###
 ################
@@ -53,10 +69,9 @@ VlnPlot(my.object, features = c("nFeature_RNA", "nCount_RNA"#,"percent.mt"
                                 ), ncol = 2)
 dev.off()
 
-# if(sfname!="GSE69405"){
-# my.object <- subset(my.object, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 #& percent.mt < 5
-# )
-# }
+if(sfname!="GSE69405"){
+my.object <- subset(my.object, subset = nFeature_RNA > opt$filterl & nFeature_RNA < opt$filterr)
+}
 
 switch(sfname, 
 
