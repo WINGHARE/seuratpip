@@ -11,7 +11,7 @@ library(dplyr)
 library(optparse)
 
 args <- commandArgs(trailingOnly = TRUE)
-
+print(args)
 option_list = list(
   make_option(c("-f", "--file"), type="character", default="data/WT1_raw_feature_bc_matrix.h5", 
               help="dataset file names, seperated by commas", metavar="character"),

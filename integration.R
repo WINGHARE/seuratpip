@@ -6,7 +6,7 @@ library(dplyr)
 library(cowplot)
 library(optparse)
 args <- commandArgs(trailingOnly = TRUE)
-
+print(args)
 names.default <-c("data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
 
 option_list = list(
