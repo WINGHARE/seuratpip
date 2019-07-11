@@ -131,10 +131,13 @@ if (file.exists(paste("output/",sfname,".rds", sep = ""))){
 }
   
 
-pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_dimplot.pdf",sep = ""))
+pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_tsne_dimplot.pdf",sep = ""))
 DimPlot(my.object,reduction = "tsne") # if want to show t-sne, replace "tsne" to "umap"
 dev.off()
 
+pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_umap_dimplot.pdf",sep = ""))
+DimPlot(my.object,reduction = "umap") # if want to show t-sne, replace "tsne" to "umap"
+dev.off()
 # Find markers for all culsters and each cluster
 my.object.markers.all<-FindAllMarkers(my.object,only.pos = T)
 my.object.markers.each <- list()
