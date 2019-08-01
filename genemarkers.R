@@ -1,20 +1,6 @@
 # set working directory, you may change the directory first.
 #setwd("")
 # loading required packege
-args <- commandArgs(trailingOnly = TRUE)
-
-# test if there is at least one argument: if not, load file 1 as imput
-if (length(args)==0) {
-    print("No input file name input, use ko1 filename")
-    filename <- "data/WT1_raw_feature_bc_matrix.h5"
-}else {
-    print(args)
-    filename = args[1]
-    #sfname = gsub(".h5","",filename)
-    #sfname = gsub(".csv","",sfname)
-    #sfname = gsub("data/","",sfname)
-    sfname = gsub("[.h5]|[.csv]|[data/]|[.txt]","",filename)
-}
 
 if(!require(Seurat)) {
   install.packages("Seurat")
@@ -22,6 +8,36 @@ if(!require(Seurat)) {
   library(Seurat)
 }
 library(dplyr)
+library(optparse)
+
+args <- commandArgs(trailingOnly = TRUE)
+print(args)
+option_list = list(
+  make_option(c("-f", "--file"), type="character", default="data/WT1_raw_feature_bc_matrix.h5", 
+              help="dataset file names, seperated by commas", metavar="character"),
+  make_option(c("-o", "--out"), type="character", default="out.txt", 
+              help="output file name [default= %default]", metavar="character"),
+  make_option("--filterl", type ="integer",default=500, 
+              help="The lower bound of the filter nFerature RNA [default= %default]"),
+  make_option("--filterr", type ="integer", default=5000,
+              help="The upper bound of the filter nFerature RNA", metavar="integer")
+)
+
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser,args);
+
+# test if there is at least one argument: if not, load file 1 as imput
+
+filename = opt$file
+    #sfname = gsub(".h5","",filename)
+    #sfname = gsub(".csv","",sfname)
+    #sfname = gsub("data/","",sfname)
+sfname = gsub("[.h5]|[.csv]|[data/]|[.txt]","",filename)
+
+
+
+
+
 ################
 # input hdf5 ###
 ################
@@ -48,22 +64,26 @@ my.object<-CreateSeuratObject(my.raw.data)
 # filtering out data with high count, low count, and high MT- counts. 
 #my.object[["percent.mt"]] <- PercentageFeatureSet(my.object, pattern = "^MT-")
 
-pdf(file=paste("figs/",sfname,"_vlnplot.pdf",sep = ""))
+pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_vlnplot.pdf",sep = ""))
 VlnPlot(my.object, features = c("nFeature_RNA", "nCount_RNA"#,"percent.mt"
                                 ), ncol = 2)
 dev.off()
 
-# if(sfname!="GSE69405"){
-# my.object <- subset(my.object, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 #& percent.mt < 5
-# )
-# }
 
+# Data specific procession
 switch(sfname, 
-
+       
        GSE108394={
-         my.object <- subset(my.object, subset = nFeature_RNA > 2000 & nFeature_RNA < 8000)
-       } 
+         #my.object <- subset(my.object, subset = nFeature_RNA > 2000 & nFeature_RNA < 8000)
+       },
+       GSE117872={
+         my.meta <- read.csv("data/GSE117872_cellinfo.txt",sep="\t",header=TRUE, row.names = 1)
+         my.object@meta.data <- cbind(my.object@meta.data,my.meta)
+       }
 )
+
+my.object <- subset(my.object, subset = nFeature_RNA > opt$filterl & nFeature_RNA < opt$filterr)
+
 
 #################
 my.object<-NormalizeData(my.object,normalization.method = "LogNormalize",scale.factor = 10000)
@@ -80,11 +100,11 @@ my.object<-RunPCA(my.object,rev.pca = F,features = VariableFeatures(object = my.
 DimPlot(my.object,reduction = "pca")
 print(my.object[["pca"]], dims = 1:5, nfeatures = 5)
 
-pdf(file=paste("figs/",sfname,"_elbowplot.pdf",sep = ""))
+pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_elbowplot.pdf",sep = ""))
 ElbowPlot(my.object)# check the dims range for the following analysis
 dev.off()
 
-pdf(file=paste("figs/",sfname,"_dimheatmap.pdf",sep = ""))
+pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_dimheatmap.pdf",sep = ""))
 DimHeatmap(my.object, dims = 1:15, cells = 500, balanced = TRUE)
 dev.off()
 
@@ -111,10 +131,13 @@ if (file.exists(paste("output/",sfname,".rds", sep = ""))){
 }
   
 
-pdf(file=paste("figs/",sfname,"_dimplot.pdf",sep = ""))
+pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_tsne_dimplot.pdf",sep = ""))
 DimPlot(my.object,reduction = "tsne") # if want to show t-sne, replace "tsne" to "umap"
 dev.off()
 
+pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_umap_dimplot.pdf",sep = ""))
+DimPlot(my.object,reduction = "umap") # if want to show t-sne, replace "tsne" to "umap"
+dev.off()
 # Find markers for all culsters and each cluster
 my.object.markers.all<-FindAllMarkers(my.object,only.pos = T)
 my.object.markers.each <- list()
@@ -143,10 +166,10 @@ find_topk_marker_each<-function(markers.each,k=1){
 }
 
 
-pdf(file=paste("figs/",sfname,"_markers_vlnplot.pdf",sep = ""))
+pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_markers_vlnplot.pdf",sep = ""),width = 20,height = 20)
 VlnPlot(my.object, features = find_topk_marker(my.object.markers.all,k=9), slot = "counts", log = TRUE,pt.size=0)
 dev.off()
 
-pdf(file=paste("figs/",sfname,"_markers_vlnplotvs.pdf",sep = ""))
+pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_markers_vlnplotvs.pdf",sep = ""),width = 20,height = 20)
 VlnPlot(my.object, features = find_topk_marker_each(my.object.markers.each,1), slot = "counts", log = TRUE,pt.size=0)
 dev.off()

@@ -3,21 +3,41 @@
 # loading required packege
 library(Seurat)
 library(dplyr)
-
-
+library(cowplot)
+library(optparse)
 args <- commandArgs(trailingOnly = TRUE)
+print(args)
+names.default <-c("data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
+
+option_list = list(
+  make_option(c("-f", "--file"), type="character", default=names.default, 
+              help="dataset file names, seperated by commas", metavar="character"),
+  make_option(c("-o", "--out"), type="character", default="out.txt", 
+              help="output file name [default= %default]", metavar="character"),
+  make_option("--filterl", type ="integer", default=as.integer(500),
+              help="The lower bound of the filter nFerature RNA [default= %default]", metavar="number"),
+  make_option("--filterr", type ="integer", default=as.integer(5000), 
+              help="The upper bound of the filter nFerature RNA", metavar="number")
+)
+
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser,args=args);
+
+#args <- commandArgs(trailingOnly = TRUE)
 
 ##################  
 # Argument tests #
 ##################
 
 # Test if there is at least one argument: if not, use the default arguments 
-if (length(args)==0) {
-    print("No input file name input, use default filename")
-    args <-c("data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
-}
-print(args)
-filename = args[1]
+# if (length(args)==0) {
+#     print("No input file name input, use default filename")
+#     args <-c("data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
+# }
+# print(args)
+# filename = args[1]
+
+filename <- opt$file
 filenames <- unlist(strsplit(filename, ","))
 num.files <- length(filenames)
 sfnames <- unlist(strsplit(gsub("[data/]|[.h5]","",filename),","))
@@ -56,7 +76,7 @@ for(i in 1:num.files){
   my.object[[i]]<-NormalizeData(my.object[[i]],normalization.method = "LogNormalize",
                                 scale.factor = 10000)
   
-  my.object[[i]] <- subset(my.object[[i]], subset = nFeature_RNA > 200 & nFeature_RNA < 4000)
+  my.object[[i]] <- subset(my.object[[i]], subset = nFeature_RNA > opt$filterl & nFeature_RNA < opt$filterr)
   my.object[[i]] <- FindVariableFeatures(my.object[[i]],selection.method = "vst"
                                          ,nfeatures = 500, verbose =  FALSE)
   
@@ -76,19 +96,25 @@ labels.files.num <- unlist(lapply(rownames(data.all.integrated@meta.data),
 data.all.integrated@meta.data<-cbind(data.all.integrated@meta.data,labels.files.num)
 
 saveRDS(data.all.integrated, file = paste("output/",sfname,".rds",sep = ""))
+}
+
+data.all.integrated <- FindNeighbors(data.all.integrated, dims = 1:15)
+data.all.integrated <- FindClusters(data.all.integrated, resolution = 0.5)
 data.all.integrated <- RunPCA(data.all.integrated, npcs = 30, verbose = FALSE)
-data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:30)
+data.all.integrated <- RunUMAP(data.all.integrated, reduction = "pca", dims = 1:30, verbose= FALSE)
 data.all.integrated <- RunTSNE(data.all.integrated, dims = 1:30, perplexity=10,dim.embed = 2)
 saveRDS(data.all.integrated, file = paste("output/",sfname,"reduced.rds",sep = ""))
 
-pdf(file=paste("figs/",sfname,"_dimplots.pdf",sep = ""))
+pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_dimplots.pdf",sep = ""))
 p1 <- DimPlot(data.all.integrated, reduction = "pca", group.by = "labels.files.num")
 p2 <- DimPlot(data.all.integrated, reduction = "umap", group.by = "labels.files.num")
 p3 <- DimPlot(data.all.integrated, reduction = "tsne", group.by = "labels.files.num")
 plot_grid(p1, p2,p3)
 dev.off()
 
-}# End else
+
+
+# End else
 
 #pdf(file=paste("figs/",sfname,"_markers_vlnplot.pdf",sep = ""))
 #VlnPlot(my.object, features = find_topk_marker(my.object.markers.all,k=9), slot = "counts", log = TRUE,pt.size=0)
