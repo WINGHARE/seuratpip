@@ -13,7 +13,7 @@ library(optparse)
 args <- commandArgs(trailingOnly = TRUE)
 print(args)
 option_list = list(
-  make_option(c("-f", "--file"), type="character", default="data/WT1_raw_feature_bc_matrix.h5", 
+  make_option(c("-f", "--file"), type="character", default="data/WT1/raw_feature_bc_matrix.h5", 
               help="dataset file names, seperated by commas", metavar="character"),
   make_option(c("-o", "--out"), type="character", default="out.txt", 
               help="output file name [default= %default]", metavar="character"),
