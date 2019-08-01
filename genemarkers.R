@@ -57,7 +57,7 @@ if(length(grep(".h5",filename)>0)){
   
 }
 #my.raw.data<-Read10X_h5(filename) # check `?Read10X_h5` for help
-my.object<-CreateSeuratObject(my.raw.data) 
+my.object<-CreateSeuratObject(my.raw.data,min.cells = 3,min.features = 200) 
 #################
 #preprocessing###
 #################
