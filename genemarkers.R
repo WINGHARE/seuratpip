@@ -115,7 +115,7 @@ dev.off()
 if (file.exists(paste("output/",sfname,".rds", sep = ""))){
   my.object<-readRDS(file = paste("output/",sfname,".rds", sep = ""))
 }else{
-  my.object<-RunTSNE(my.object,dims = 1:30,perplexity=10,dim.embed = 2)
+  #my.object<-RunTSNE(my.object,dims = 1:30,perplexity=10,dim.embed = 2)
   # run umap to get high dimension scatter plot at 2 dimensional coordinate system.
   my.object<-RunUMAP(object = my.object,dims = 1:30)
   
@@ -131,9 +131,9 @@ if (file.exists(paste("output/",sfname,".rds", sep = ""))){
 }
   
 
-pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_tsne_dimplot.pdf",sep = ""))
-DimPlot(my.object,reduction = "tsne") # if want to show t-sne, replace "tsne" to "umap"
-dev.off()
+#pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_tsne_dimplot.pdf",sep = ""))
+#DimPlot(my.object,reduction = "tsne") # if want to show t-sne, replace "tsne" to "umap"
+#dev.off()
 
 pdf(file=paste("figs/",sfname,format(Sys.Date(),format = "%s"),"_umap_dimplot.pdf",sep = ""))
 DimPlot(my.object,reduction = "umap") # if want to show t-sne, replace "tsne" to "umap"
