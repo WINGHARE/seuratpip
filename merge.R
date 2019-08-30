@@ -87,7 +87,7 @@ for(i in 1:num.files){
 }
 
 data.all.integrated<- merge(my.object[[1]], y = my.object[2:length(my.object)],
-                            #, add.cell.ids = c("KO1", "KO2", "KO3","KO4")
+                            , add.cell.ids = sfnames
                             , project = sfname)
 
 saveRDS(data.all.integrated, file = paste("output/",sfname,"combined.rds",sep = ""))
