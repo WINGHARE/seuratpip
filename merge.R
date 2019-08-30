@@ -7,7 +7,7 @@ library(cowplot)
 library(optparse)
 args <- commandArgs(trailingOnly = TRUE)
 print(args)
-names.default <-c("data/KO1_raw_feature_bc_matrix.h5,data/KO2_raw_feature_bc_matrix.h5,data/KO3_raw_feature_bc_matrix.h5,data/KO4_raw_feature_bc_matrix.h5,data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
+names.default <-c("data/WT1_raw_feature_bc_matrix.h5,data/WT3_raw_feature_bc_matrix.h5,data/WT4_raw_feature_bc_matrix.h5")
 
 option_list = list(
   make_option(c("-f", "--file"), type="character", default=names.default, 
@@ -62,7 +62,11 @@ if(length(grep(".h5",filename)>0)){
 }else if(length(grep("[.csv][.txt]",filename)>0)){
     my.raw.data<- read.csv(filename,sep="\t",header=TRUE, row.names = 1)
 }else{
-  my.raw.data <- Read10X(data.dir = filename)
+  
+  for(i in 1:num.files){
+    my.raw.data[[i]]<-daRead10X(data.dir = filename)
+
+  }
   
 }
 }
@@ -70,7 +74,7 @@ my.object <- list()
 
 # Preprocess the raw files
 for(i in 1:num.files){
-  my.object[[i]]<- CreateSeuratObject(my.raw.data[[i]])
+  my.object[[i]]<- CreateSeuratObject(my.raw.data[[i]],min.cells = 3, min.features = 200)
   my.object[[i]] <- RenameCells(my.object[[i]], add.cell.id = i)
   #my.object[[i]] <- NormalizeData(my.object[[i]],verbose = FALSE)
   #my.object[[i]]<-NormalizeData(my.object[[i]],normalization.method = "LogNormalize",
@@ -82,8 +86,8 @@ for(i in 1:num.files){
   
 }
 
-data.all.integrated<- merge(my.object[[1]], y = c(pbmc4k, pbmc8k)
-                            , add.cell.ids = c("3K", "4K", "8K")
-                            , project = "Tregko")
+data.all.integrated<- merge(my.object[[1]], y = my.object[2:length(my.object)],
+                            #, add.cell.ids = c("KO1", "KO2", "KO3","KO4")
+                            , project = sfname)
 
 saveRDS(data.all.integrated, file = paste("output/",sfname,"combined.rds",sep = ""))
